@@ -6,7 +6,7 @@ import { Routes } from 'discord-api-types/v9';
 import "./about"
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@discordjs/builders"
 const wait = require('util').promisify(setTimeout);
-const token = process.env.TOKEN
+const token:any = process.env.TOKEN
 
 // Update bot use => "a!updateEventGuildIdEachGuildByMsg!a"
 

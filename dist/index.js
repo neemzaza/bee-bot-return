@@ -81,27 +81,27 @@ const date = new Date();
             : 'Off'}\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``;
         // DisTube event listeners, more in the documentation page
         distube
-            .on('playSong', (queue, song) => queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`))
-            .on('addSong', (queue, song) => queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`))
-            .on('addList', (queue, playlist) => queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`))
+            .once('playSong', (queue, song) => queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`))
+            .once('addSong', (queue, song) => queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`))
+            .once('addList', (queue, playlist) => queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`))
             // DisTubeOptions.searchSongs = true
-            .on('searchResult', (message, result) => {
+            .once('searchResult', (message, result) => {
             let i = 0;
             message.channel.send(`**Choose an option from below**\n${result
                 .map(song => `**${++i}**. ${song.name} - \`${song.formattedDuration}\``)
                 .join('\n')}\n*Enter anything else or wait 30 seconds to cancel*`);
         })
-            .on('searchCancel', (message) => message.channel.send(`การค้นหา ถูกหยุด`))
-            .on('searchInvalidAnswer', (message) => message.channel.send(`searchInvalidAnswer`))
-            .on('searchNoResult', (message) => message.channel.send(`ไม่เจออ่ะ`))
-            .on('error', (textChannel, e) => {
+            .once('searchCancel', (message) => message.channel.send(`การค้นหา ถูกหยุด`))
+            .once('searchInvalidAnswer', (message) => message.channel.send(`searchInvalidAnswer`))
+            .once('searchNoResult', (message) => message.channel.send(`ไม่เจออ่ะ`))
+            .once('error', (textChannel, e) => {
             console.error(e);
             textChannel.send(`An error encountered: ${e.slice(0, 2000)}`);
         })
-            .on('finish', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('หมดคิวละไปนอนต่อละ'); })
-            .on('finishSong', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('เพลงจบไปแล้ว 1'); })
-            .on('disconnect', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('ไปละ'); })
-            .on('empty', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('Empty!'); });
+            .once('finish', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('หมดคิวละไปนอนต่อละ'); })
+            .once('finishSong', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('เพลงจบไปแล้ว 1'); })
+            .once('disconnect', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('ไปละ'); })
+            .once('empty', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('Empty!'); });
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
                 yield rest.put(v9_1.Routes.applicationGuildCommands(botconfig_json_1.clientId, guildId), //'844398657071480872'

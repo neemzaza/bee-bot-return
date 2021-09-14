@@ -104,7 +104,7 @@ const date = new Date();
         )
         if (!interaction.isCommand()) return;
         if (interaction.channel !== channel) {
-            interaction.reply("You not have permission to access this channel (รอหน่อยเดี๋ยวเปิดให้ใช้กันแล้ว)");
+            interaction.reply({content: "You not have permission to access this channel (รอหน่อยเดี๋ยวเปิดให้ใช้กันแล้ว)", ephemeral: true});
             return
         }
 

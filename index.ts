@@ -1,4 +1,4 @@
-import { Client, Intents, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { Client, Intents, Message, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { token, clientId, birthday, guildId } from "./botconfig.json"
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
@@ -40,6 +40,9 @@ const commands = [
 
 
 ]
+
+
+
 const rest: REST = new REST({ version: '9' }).setToken(token);
 
 const whoBirthday: string = "Thun";
@@ -49,7 +52,15 @@ const date = new Date();
     const intents: any[] = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES"]
     const client = new Client({ intents: intents });
     client.user?.setPresence({ activities: [{ name: 'together' }], status: 'invisible' })
+
+
+
+
     const distube = new DisTube(client, { searchSongs: 1, searchCooldown: 30, emitNewSongOnly: true })
+
+
+
+
 
     client.on("guildMemberRemove", member => {
         const avatar: any = member.user?.avatarURL()
@@ -64,12 +75,22 @@ const date = new Date();
 
     })
 
+
+
+
+
     client.on('ready', async (interaction) => {
 
         let allGuildId: string[] = client.guilds.cache.map(guild => guild.id)
         console.log(allGuildId)
 
     })
+
+
+
+
+
+    
     // @ts-ignore
     client.on("messageCreate", async msg => {
         const guildId: any = msg.guild?.id
@@ -77,7 +98,7 @@ const date = new Date();
         const args = msg.content.slice(prefix.length).trim().split(/ +/g)
         const command = args.shift()
 
-        const status = (queue: Queue) =>
+        const status = (queue: Queue) => 
             `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
             || 'Off'}\` | วนไหม?: \`${queue.repeatMode
                 ? queue.repeatMode === 2
@@ -89,20 +110,17 @@ const date = new Date();
         // DisTube event listeners, more in the documentation page
         distube
 
-            .on('playSong', (queue, song) =>
-                // @ts-ignore
+            .on('playSong', (queue: any, song) =>
                 queue.textChannel.send(
                     `กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration
                     }\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`,
                 ))
 
-            .on('addSong', (queue, song) =>
-                // @ts-ignore
+            .on('addSong', (queue: any, song) =>
                 queue.textChannel.send(
                     `เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`,
                 ))
-            .on('addList', (queue, playlist) =>
-                // @ts-ignore
+            .on('addList', (queue: any, playlist) =>
                 queue.textChannel.send(
                     `เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length
                     } songs) ไปยังรายการเปิดเพลง\n${status(queue)}`,
@@ -122,26 +140,19 @@ const date = new Date();
                         )}\n*Enter anything else or wait 30 seconds to cancel*`,
                 )
             })
-            // @ts-ignore
-            .on('searchCancel', message => message.channel.send(`การค้นหา ถูกหยุด`))
-            .on('searchInvalidAnswer', message =>
-                // @ts-ignore
+            .on('searchCancel', (message: any) => message.channel.send(`การค้นหา ถูกหยุด`))
+            .on('searchInvalidAnswer', (message: any) =>
                 message.channel.send(`searchInvalidAnswer`))
-            // @ts-ignore
-            .on('searchNoResult', message => message.channel.send(`ไม่เจออ่ะ`))
-            .on('error', (textChannel, e) => {
+            .on('searchNoResult', (message: any) => message.channel.send(`ไม่เจออ่ะ`))
+            .on('error', (textChannel, e: any) => {
                 console.error(e)
-                // @ts-ignore
                 textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
             })
-            // @ts-ignore
-            .on('finish', queue => queue.textChannel.send('หมดคิวละไปนอนต่อละ'))
-            // @ts-ignore
-            .on('finishSong', queue => queue.textChannel.send('เพลงจบไปแล้ว 1'))
-            // @ts-ignore
-            .on('disconnect', queue => queue.textChannel.send('ไปละ'))
-            // @ts-ignore
-            .on('empty', queue => queue.textChannel.send('Empty!'))
+            
+            .on('finish', (queue: any) => queue.textChannel?.send('หมดคิวละไปนอนต่อละ'))
+            .on('finishSong', (queue: any) => queue.textChannel?.send('เพลงจบไปแล้ว 1'))
+            .on('disconnect', (queue: any) => queue.textChannel?.send('ไปละ'))
+            .on('empty', (queue: any) => queue.textChannel?.send('Empty!'))
 
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
@@ -184,6 +195,11 @@ const date = new Date();
         }
 
         if (command === "skip") {
+            const queue: any = distube.getQueue(msg)
+
+            if (!queue) {
+                return msg.channel.send("ในคิวไม่มีเพลงอยู่เลยนะ จะข้ามไปไหน?")
+            }
             distube.skip(msg)
         }
 
@@ -193,6 +209,12 @@ const date = new Date();
             msg.channel.send(`ปรับระดับเสียงเพลงให้้เป็น ${args[0]} แล้วครับ`)
         }
     })
+
+
+
+
+
+    
 
     client.on('interactionCreate', async interaction => {
 

@@ -16,7 +16,6 @@ const v9_1 = require("discord-api-types/v9");
 // import * as leaveEvent from "./command/leaveEvent"
 require("./about");
 const builders_1 = require("@discordjs/builders");
-// const wait = require('util').promisify(setTimeout);
 // const token:any = process.env.TOKEN
 // Update bot use => "a!updateEventGuildIdEachGuildByMsg!a"
 const commands = [

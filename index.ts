@@ -1,7 +1,8 @@
-import { Client, Intents,MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
-import { token,clientId, birthday, guildId } from "./botconfig.json"
+import { Client, Intents, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { token, clientId, birthday, guildId } from "./botconfig.json"
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
+import { DisTube, Queue } from "distube";
 // import * as leaveEvent from "./command/leaveEvent"
 import "./about"
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@discordjs/builders"
@@ -33,38 +34,115 @@ const commands = [
         .setName("birthday")
         .setDescription("Happy birthday!!!"),
 
-]
-const rest:REST = new REST({ version: '9' }).setToken(token);
+    new SlashCommandBuilder()
+        .setName("help")
+        .setDescription("use /help to view all commands available")
 
-const whoBirthday:string = "Thun";
+
+]
+const rest: REST = new REST({ version: '9' }).setToken(token);
+
+const whoBirthday: string = "Thun";
 const date = new Date();
 
 (async () => {
-    const intents:any[] = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"]
+    const intents: any[] = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES"]
     const client = new Client({ intents: intents });
-    
+    client.user?.setPresence({ activities: [{ name: 'together' }], status: 'invisible' })
+    const distube = new DisTube(client, { searchSongs: 1, searchCooldown: 30, emitNewSongOnly: true })
+
     client.on("guildMemberRemove", member => {
-        const avatar:any = member.user?.avatarURL()
-        const channel:any = client.channels.cache.get("886952139933483009")
+        const avatar: any = member.user?.avatarURL()
+        const channel: any = client.channels.cache.get("886952139933483009")
         if (!channel) return
         const embed = new MessageEmbed()
-        .setColor("RED")
-        .setTitle(`${member.displayName} has left the server`)
-        .setThumbnail(avatar)
+            .setColor("RED")
+            .setTitle(`${member.displayName} has left the server`)
+            .setThumbnail(avatar)
 
         channel.send({ embeds: [embed] })
-        
+
     })
 
     client.on('ready', async (interaction) => {
 
-        let allGuildId:string[] = client.guilds.cache.map(guild => guild.id)
+        let allGuildId: string[] = client.guilds.cache.map(guild => guild.id)
         console.log(allGuildId)
-        
-    })
 
+    })
+    // @ts-ignore
     client.on("messageCreate", async msg => {
-        const guildId:any = msg.guild?.id
+        const guildId: any = msg.guild?.id
+        const prefix = '$'
+        const args = msg.content.slice(prefix.length).trim().split(/ +/g)
+        const command = args.shift()
+
+        const status = (queue: Queue) =>
+            `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
+            || 'Off'}\` | วนไหม?: \`${queue.repeatMode
+                ? queue.repeatMode === 2
+                    ? 'All Queue'
+                    : 'This Song'
+                : 'Off'
+            }\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``
+
+        // DisTube event listeners, more in the documentation page
+        distube
+
+            .on('playSong', (queue, song) =>
+                // @ts-ignore
+                queue.textChannel.send(
+                    `กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration
+                    }\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`,
+                ))
+
+            .on('addSong', (queue, song) =>
+                // @ts-ignore
+                queue.textChannel.send(
+                    `เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`,
+                ))
+            .on('addList', (queue, playlist) =>
+                // @ts-ignore
+                queue.textChannel.send(
+                    `เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length
+                    } songs) ไปยังรายการเปิดเพลง\n${status(queue)}`,
+                ))
+            // DisTubeOptions.searchSongs = true
+            .on('searchResult', (message, result) => {
+                let i = 0
+                message.channel.send(
+                    `**Choose an option from below**\n${result
+                        .map(
+                            song =>
+                                `**${++i}**. ${song.name} - \`${song.formattedDuration
+                                }\``,
+                        )
+                        .join(
+                            '\n',
+                        )}\n*Enter anything else or wait 30 seconds to cancel*`,
+                )
+            })
+            // @ts-ignore
+            .on('searchCancel', message => message.channel.send(`การค้นหา ถูกหยุด`))
+            .on('searchInvalidAnswer', message =>
+                // @ts-ignore
+                message.channel.send(`searchInvalidAnswer`))
+            // @ts-ignore
+            .on('searchNoResult', message => message.channel.send(`ไม่เจออ่ะ`))
+            .on('error', (textChannel, e) => {
+                console.error(e)
+                // @ts-ignore
+                textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
+            })
+            // @ts-ignore
+            .on('finish', queue => queue.textChannel.send('หมดคิวละไปนอนต่อละ'))
+            // @ts-ignore
+            .on('finishSong', queue => queue.textChannel.send('เพลงจบไปแล้ว 1'))
+            // @ts-ignore
+            .on('disconnect', queue => queue.textChannel.send('ไปละ'))
+            // @ts-ignore
+            .on('empty', queue => queue.textChannel.send('Empty!'))
+
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
                 await rest.put(
@@ -76,14 +154,50 @@ const date = new Date();
                 console.log("Found error! " + err);
             }
         }
+        if (msg.author.bot) return
+        if (!msg.content.startsWith(prefix)) return
+
+        if (command === "play") {
+            if (!msg.member?.voice.channel) return msg.channel.send("คุณไม่ได้อยู่ในห้องเสียงไหนเลยนะ?");
+            if (!args[0]) return msg.channel.send("เว้นวรรคแล้วใส่ชื่อเพลงด้วย!");
+
+            distube.play(msg, args.join(" "))
+        }
+        if (command === "stop") {
+
+            const bot = msg.guild?.members.cache.get(client.user?.id!)
+            if (!msg.member?.voice.channel) return msg.channel.send("คุณไม่ได้อยู่ในห้องเสียงไหนเลยนะ?");
+            if (bot?.voice.channel !== msg.member?.voice.channel) return msg.channel.send('คุณไม่ได้อยู่ที่เดียวกับบอทนะ')
+            distube.stop(msg)
+            msg.channel.send('คุณได้หยุดเพลงเรียบร้อย!')
+        }
+        if (command === "queue") {
+            const queue: any = distube.getQueue(msg)
+
+            if (!queue) {
+                return msg.channel.send("ในคิวไม่มีเพลงอยู่เลยนะ")
+            }
+            msg.channel.send('คิวตอนนี้:\n' + queue.songs.map((song: { name: string; url: string; formattedDuration: any; }, id: number) =>
+                `**${id + 1}**. [${song.name}](${song.url}) ความยาว \`${song.formattedDuration}\``
+            ).join("\n"));
+
+        }
+
+        if (command === "skip") {
+            distube.skip(msg)
+        }
+
+        if (command === "volume") {
+            if (!args[0]) return msg.reply("กลับไปใส่ระดับเสียงซะ...")
+            distube.setVolume(msg, parseInt(args[0]))
+            msg.channel.send(`ปรับระดับเสียงเพลงให้้เป็น ${args[0]} แล้วครับ`)
+        }
     })
 
-    client.user?.setPresence({ activities: [{name: "Airwavy"}], status: 'idle' })
-
     client.on('interactionCreate', async interaction => {
-        
+
         const channel = client.channels.cache.get("887156603302871110")
-        
+
         const embed = new MessageEmbed()
             .setColor('#fff')
             .setTitle(`Happy birthday! ${whoBirthday} 14/9/2021!`)
@@ -91,20 +205,34 @@ const date = new Date();
             .setImage("https://cdn.discordapp.com/attachments/841924507261468704/886842358866534491/happybirththun2021.jpg")
             .setTimestamp(new Date().setFullYear(new Date().getFullYear(), birthday.month - 1, birthday.date))
             .addFields(
-                {name: "ชื่อ", value: whoBirthday},
-                {name: "บุคลิก", value: "หน้าตูด"}
+                { name: "ชื่อ", value: whoBirthday },
+                { name: "บุคลิก", value: "หน้าตูด" }
             )
-            
+
+        const embedhelp = new MessageEmbed()
+            .setColor('#fff')
+            .setTitle(`Help Center - All commands`)
+            .addFields(
+                { name: "Music bot", value: "$play เว้นวรรคตามด้วยชื่อเพลงเพื่อเล่น\n$skip เพื่อข้าม\n$stop เพื่อหยุดเพลง\n $queue เพื่อดูลำดับการเปิดเพลง\n$volume เว้นวรรคตามด้วยระดับเสียงเพืื่อปรับระดับเสียงเพลง" }
+            )
+
         const row = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-            .setCustomId('primary')
-            .setLabel('Subscribe')
-            .setStyle('PRIMARY')
-        )
+            .addComponents(
+                new MessageButton()
+                    .setCustomId('primary')
+                    .setLabel('Subscribe')
+                    .setStyle('PRIMARY')
+            )
+
         if (!interaction.isCommand()) return;
+
+        if (interaction.commandName === 'help') {
+            return interaction.reply({embeds: [embedhelp], ephemeral: true})
+        }
+
+        // WIP
         if (interaction.channel !== channel) {
-            interaction.reply({content: "You not have permission to access this channel (รอหน่อยเดี๋ยวเปิดให้ใช้กันแล้ว)", ephemeral: true});
+            interaction.reply({ content: "You not have permission to access this channel (รอหน่อยเดี๋ยวเปิดให้ใช้กันแล้ว)", ephemeral: true });
             return
         }
 
@@ -114,14 +242,14 @@ const date = new Date();
 
         if (interaction.commandName === 'birthday') {
             if (date.getDate() === 14) {
-                interaction.reply({ embeds: [embed]})
+                interaction.reply({ embeds: [embed] })
             } else {
                 interaction.reply("AH!!")
             }
         }
 
         if (interaction.commandName === 'about') {
-            
+
             if (interaction.options.getSubcommand() === "yourself") {
                 const user = interaction.options.getUser('target');
 
@@ -136,8 +264,13 @@ const date = new Date();
                 await interaction.reply("usage: /about <command>\n\tyourself, server")
             }
         }
+
+
     })
-    
+
+
+
+
 
     client.login(token)
 })();

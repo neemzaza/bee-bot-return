@@ -13,6 +13,7 @@ const discord_js_1 = require("discord.js");
 const botconfig_json_1 = require("./botconfig.json");
 const rest_1 = require("@discordjs/rest");
 const v9_1 = require("discord-api-types/v9");
+const distube_1 = require("distube");
 // import * as leaveEvent from "./command/leaveEvent"
 require("./about");
 const builders_1 = require("@discordjs/builders");
@@ -36,14 +37,19 @@ const commands = [
     new builders_1.SlashCommandBuilder()
         .setName("birthday")
         .setDescription("Happy birthday!!!"),
+    new builders_1.SlashCommandBuilder()
+        .setName("help")
+        .setDescription("use /help to view all commands available")
 ];
 const rest = new rest_1.REST({ version: '9' }).setToken(botconfig_json_1.token);
 const whoBirthday = "Thun";
 const date = new Date();
 (() => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"];
+    const intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES"];
     const client = new discord_js_1.Client({ intents: intents });
+    (_a = client.user) === null || _a === void 0 ? void 0 : _a.setPresence({ activities: [{ name: 'together' }], status: 'invisible' });
+    const distube = new distube_1.DisTube(client, { searchSongs: 1, searchCooldown: 30, emitNewSongOnly: true });
     client.on("guildMemberRemove", member => {
         var _a;
         const avatar = (_a = member.user) === null || _a === void 0 ? void 0 : _a.avatarURL();
@@ -60,9 +66,57 @@ const date = new Date();
         let allGuildId = client.guilds.cache.map(guild => guild.id);
         console.log(allGuildId);
     }));
+    // @ts-ignore
     client.on("messageCreate", (msg) => __awaiter(void 0, void 0, void 0, function* () {
-        var _b, _c, _d;
+        var _b, _c, _d, _e, _f, _g, _h, _j;
         const guildId = (_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id;
+        const prefix = '$';
+        const args = msg.content.slice(prefix.length).trim().split(/ +/g);
+        const command = args.shift();
+        const status = (queue) => `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
+            || 'Off'}\` | วนไหม?: \`${queue.repeatMode
+            ? queue.repeatMode === 2
+                ? 'All Queue'
+                : 'This Song'
+            : 'Off'}\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``;
+        // DisTube event listeners, more in the documentation page
+        distube
+            .on('playSong', (queue, song) => 
+        // @ts-ignore
+        queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`))
+            .on('addSong', (queue, song) => 
+        // @ts-ignore
+        queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`))
+            .on('addList', (queue, playlist) => 
+        // @ts-ignore
+        queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`))
+            // DisTubeOptions.searchSongs = true
+            .on('searchResult', (message, result) => {
+            let i = 0;
+            message.channel.send(`**Choose an option from below**\n${result
+                .map(song => `**${++i}**. ${song.name} - \`${song.formattedDuration}\``)
+                .join('\n')}\n*Enter anything else or wait 30 seconds to cancel*`);
+        })
+            // @ts-ignore
+            .on('searchCancel', message => message.channel.send(`การค้นหา ถูกหยุด`))
+            .on('searchInvalidAnswer', message => 
+        // @ts-ignore
+        message.channel.send(`searchInvalidAnswer`))
+            // @ts-ignore
+            .on('searchNoResult', message => message.channel.send(`ไม่เจออ่ะ`))
+            .on('error', (textChannel, e) => {
+            console.error(e);
+            // @ts-ignore
+            textChannel.send(`An error encountered: ${e.slice(0, 2000)}`);
+        })
+            // @ts-ignore
+            .on('finish', queue => queue.textChannel.send('หมดคิวละไปนอนต่อละ'))
+            // @ts-ignore
+            .on('finishSong', queue => queue.textChannel.send('เพลงจบไปแล้ว 1'))
+            // @ts-ignore
+            .on('disconnect', queue => queue.textChannel.send('ไปละ'))
+            // @ts-ignore
+            .on('empty', queue => queue.textChannel.send('Empty!'));
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
                 yield rest.put(v9_1.Routes.applicationGuildCommands(botconfig_json_1.clientId, guildId), //'844398657071480872'
@@ -73,10 +127,45 @@ const date = new Date();
                 console.log("Found error! " + err);
             }
         }
+        if (msg.author.bot)
+            return;
+        if (!msg.content.startsWith(prefix))
+            return;
+        if (command === "play") {
+            if (!((_e = msg.member) === null || _e === void 0 ? void 0 : _e.voice.channel))
+                return msg.channel.send("คุณไม่ได้อยู่ในห้องเสียงไหนเลยนะ?");
+            if (!args[0])
+                return msg.channel.send("เว้นวรรคแล้วใส่ชื่อเพลงด้วย!");
+            distube.play(msg, args.join(" "));
+        }
+        if (command === "stop") {
+            const bot = (_f = msg.guild) === null || _f === void 0 ? void 0 : _f.members.cache.get((_g = client.user) === null || _g === void 0 ? void 0 : _g.id);
+            if (!((_h = msg.member) === null || _h === void 0 ? void 0 : _h.voice.channel))
+                return msg.channel.send("คุณไม่ได้อยู่ในห้องเสียงไหนเลยนะ?");
+            if ((bot === null || bot === void 0 ? void 0 : bot.voice.channel) !== ((_j = msg.member) === null || _j === void 0 ? void 0 : _j.voice.channel))
+                return msg.channel.send('คุณไม่ได้อยู่ที่เดียวกับบอทนะ');
+            distube.stop(msg);
+            msg.channel.send('คุณได้หยุดเพลงเรียบร้อย!');
+        }
+        if (command === "queue") {
+            const queue = distube.getQueue(msg);
+            if (!queue) {
+                return msg.channel.send("ในคิวไม่มีเพลงอยู่เลยนะ");
+            }
+            msg.channel.send('คิวตอนนี้:\n' + queue.songs.map((song, id) => `**${id + 1}**. [${song.name}](${song.url}) ความยาว \`${song.formattedDuration}\``).join("\n"));
+        }
+        if (command === "skip") {
+            distube.skip(msg);
+        }
+        if (command === "volume") {
+            if (!args[0])
+                return msg.reply("กลับไปใส่ระดับเสียงซะ...");
+            distube.setVolume(msg, parseInt(args[0]));
+            msg.channel.send(`ปรับระดับเสียงเพลงให้้เป็น ${args[0]} แล้วครับ`);
+        }
     }));
-    (_a = client.user) === null || _a === void 0 ? void 0 : _a.setPresence({ activities: [{ name: "Airwavy" }], status: 'idle' });
     client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-        var _e, _f;
+        var _k, _l;
         const channel = client.channels.cache.get("887156603302871110");
         const embed = new discord_js_1.MessageEmbed()
             .setColor('#fff')
@@ -85,6 +174,10 @@ const date = new Date();
             .setImage("https://cdn.discordapp.com/attachments/841924507261468704/886842358866534491/happybirththun2021.jpg")
             .setTimestamp(new Date().setFullYear(new Date().getFullYear(), botconfig_json_1.birthday.month - 1, botconfig_json_1.birthday.date))
             .addFields({ name: "ชื่อ", value: whoBirthday }, { name: "บุคลิก", value: "หน้าตูด" });
+        const embedhelp = new discord_js_1.MessageEmbed()
+            .setColor('#fff')
+            .setTitle(`Help Center - All commands`)
+            .addFields({ name: "Music bot", value: "$play เว้นวรรคตามด้วยชื่อเพลงเพื่อเล่น\n$skip เพื่อข้าม\n$stop เพื่อหยุดเพลง\n $queue เพื่อดูลำดับการเปิดเพลง\n$volume เว้นวรรคตามด้วยระดับเสียงเพืื่อปรับระดับเสียงเพลง" });
         const row = new discord_js_1.MessageActionRow()
             .addComponents(new discord_js_1.MessageButton()
             .setCustomId('primary')
@@ -92,6 +185,10 @@ const date = new Date();
             .setStyle('PRIMARY'));
         if (!interaction.isCommand())
             return;
+        if (interaction.commandName === 'help') {
+            return interaction.reply({ embeds: [embedhelp], ephemeral: true });
+        }
+        // WIP
         if (interaction.channel !== channel) {
             interaction.reply({ content: "You not have permission to access this channel (รอหน่อยเดี๋ยวเปิดให้ใช้กันแล้ว)", ephemeral: true });
             return;
@@ -118,7 +215,7 @@ const date = new Date();
                 }
             }
             else if (interaction.options.getSubcommand() === "server") {
-                yield interaction.reply(`Server name: ${(_e = interaction.guild) === null || _e === void 0 ? void 0 : _e.name}\nTotal members: ${(_f = interaction.guild) === null || _f === void 0 ? void 0 : _f.memberCount}`);
+                yield interaction.reply(`Server name: ${(_k = interaction.guild) === null || _k === void 0 ? void 0 : _k.name}\nTotal members: ${(_l = interaction.guild) === null || _l === void 0 ? void 0 : _l.memberCount}`);
             }
             else if (!interaction.options.getSubcommand()) {
                 yield interaction.reply("usage: /about <command>\n\tyourself, server");

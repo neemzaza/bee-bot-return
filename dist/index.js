@@ -95,7 +95,7 @@ const date = new Date();
             interaction.reply({ content: 'Subscribe Please', components: [row] });
         }
         if (interaction.commandName === 'birthday') {
-            if (date.getDate() === 13) {
+            if (date.getDate() === 14) {
                 interaction.reply({ embeds: [embed] });
             }
             else {

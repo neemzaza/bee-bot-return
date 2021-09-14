@@ -110,25 +110,25 @@ const date = new Date();
         // DisTube event listeners, more in the documentation page
         distube
 
-            .on('playSong', (queue: any, song) =>
-                queue.textChannel.send(
+            .on('playSong', async (queue: any, song) =>
+                await queue.textChannel.send(
                     `กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration
                     }\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`,
                 ))
 
-            .on('addSong', (queue: any, song) =>
-                queue.textChannel.send(
+            .on('addSong', async (queue: any, song) =>
+                await queue.textChannel.send(
                     `เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`,
                 ))
-            .on('addList', (queue: any, playlist) =>
-                queue.textChannel.send(
+            .on('addList', async (queue: any, playlist) =>
+                await queue.textChannel.send(
                     `เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length
                     } songs) ไปยังรายการเปิดเพลง\n${status(queue)}`,
                 ))
             // DisTubeOptions.searchSongs = true
-            .on('searchResult', (message, result) => {
+            .on('searchResult', async (message, result) => {
                 let i = 0
-                message.channel.send(
+                await message.channel.send(
                     `**Choose an option from below**\n${result
                         .map(
                             song =>
@@ -140,19 +140,19 @@ const date = new Date();
                         )}\n*Enter anything else or wait 30 seconds to cancel*`,
                 )
             })
-            .on('searchCancel', (message: any) => message.channel.send(`การค้นหา ถูกหยุด`))
-            .on('searchInvalidAnswer', (message: any) =>
-                message.channel.send(`searchInvalidAnswer`))
-            .on('searchNoResult', (message: any) => message.channel.send(`ไม่เจออ่ะ`))
-            .on('error', (textChannel, e: any) => {
+            .on('searchCancel', async (message: any) => await message.channel.send(`การค้นหา ถูกหยุด`))
+            .on('searchInvalidAnswer', async (message: any) =>
+                await message.channel.send(`searchInvalidAnswer`))
+            .on('searchNoResult', async (message: any) => await message.channel.send(`ไม่เจออ่ะ`))
+            .on('error', async (textChannel, e: any) => {
                 console.error(e)
-                textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
+                await textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
             })
             
-            .on('finish', (queue: any) => queue.textChannel?.send('หมดคิวละไปนอนต่อละ'))
-            .on('finishSong', (queue: any) => queue.textChannel?.send('เพลงจบไปแล้ว 1'))
-            .on('disconnect', (queue: any) => queue.textChannel?.send('ไปละ'))
-            .on('empty', (queue: any) => queue.textChannel?.send('Empty!'))
+            .on('finish', async (queue: any) => await queue.textChannel?.send('หมดคิวละไปนอนต่อละ'))
+            .on('finishSong', async (queue: any) => await queue.textChannel?.send('เพลงจบไปแล้ว 1'))
+            .on('disconnect', async (queue: any) => await queue.textChannel?.send('ไปละ'))
+            .on('empty', async (queue: any) => await queue.textChannel?.send('Empty!'))
 
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {

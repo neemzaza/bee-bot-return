@@ -80,27 +80,33 @@ const date = new Date();
             : 'Off'}\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``;
         // DisTube event listeners, more in the documentation page
         distube
-            .on('playSong', (queue, song) => queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`))
-            .on('addSong', (queue, song) => queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`))
-            .on('addList', (queue, playlist) => queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`))
+            .on('playSong', (queue, song) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`);
+        }))
+            .on('addSong', (queue, song) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`);
+        }))
+            .on('addList', (queue, playlist) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`);
+        }))
             // DisTubeOptions.searchSongs = true
-            .on('searchResult', (message, result) => {
+            .on('searchResult', (message, result) => __awaiter(void 0, void 0, void 0, function* () {
             let i = 0;
-            message.channel.send(`**Choose an option from below**\n${result
+            yield message.channel.send(`**Choose an option from below**\n${result
                 .map(song => `**${++i}**. ${song.name} - \`${song.formattedDuration}\``)
                 .join('\n')}\n*Enter anything else or wait 30 seconds to cancel*`);
-        })
-            .on('searchCancel', (message) => message.channel.send(`การค้นหา ถูกหยุด`))
-            .on('searchInvalidAnswer', (message) => message.channel.send(`searchInvalidAnswer`))
-            .on('searchNoResult', (message) => message.channel.send(`ไม่เจออ่ะ`))
-            .on('error', (textChannel, e) => {
+        }))
+            .on('searchCancel', (message) => __awaiter(void 0, void 0, void 0, function* () { return yield message.channel.send(`การค้นหา ถูกหยุด`); }))
+            .on('searchInvalidAnswer', (message) => __awaiter(void 0, void 0, void 0, function* () { return yield message.channel.send(`searchInvalidAnswer`); }))
+            .on('searchNoResult', (message) => __awaiter(void 0, void 0, void 0, function* () { return yield message.channel.send(`ไม่เจออ่ะ`); }))
+            .on('error', (textChannel, e) => __awaiter(void 0, void 0, void 0, function* () {
             console.error(e);
-            textChannel.send(`An error encountered: ${e.slice(0, 2000)}`);
-        })
-            .on('finish', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('หมดคิวละไปนอนต่อละ'); })
-            .on('finishSong', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('เพลงจบไปแล้ว 1'); })
-            .on('disconnect', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('ไปละ'); })
-            .on('empty', (queue) => { var _a; return (_a = queue.textChannel) === null || _a === void 0 ? void 0 : _a.send('Empty!'); });
+            yield textChannel.send(`An error encountered: ${e.slice(0, 2000)}`);
+        }))
+            .on('finish', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _k; return yield ((_k = queue.textChannel) === null || _k === void 0 ? void 0 : _k.send('หมดคิวละไปนอนต่อละ')); }))
+            .on('finishSong', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _l; return yield ((_l = queue.textChannel) === null || _l === void 0 ? void 0 : _l.send('เพลงจบไปแล้ว 1')); }))
+            .on('disconnect', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _m; return yield ((_m = queue.textChannel) === null || _m === void 0 ? void 0 : _m.send('ไปละ')); }))
+            .on('empty', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _o; return yield ((_o = queue.textChannel) === null || _o === void 0 ? void 0 : _o.send('Empty!')); }));
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
                 yield rest.put(v9_1.Routes.applicationGuildCommands(botconfig_json_1.clientId, guildId), //'844398657071480872'
@@ -153,7 +159,7 @@ const date = new Date();
         }
     }));
     client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-        var _k, _l;
+        var _p, _q;
         const channel = client.channels.cache.get("887156603302871110");
         const embed = new discord_js_1.MessageEmbed()
             .setColor('#fff')
@@ -203,7 +209,7 @@ const date = new Date();
                 }
             }
             else if (interaction.options.getSubcommand() === "server") {
-                yield interaction.reply(`Server name: ${(_k = interaction.guild) === null || _k === void 0 ? void 0 : _k.name}\nTotal members: ${(_l = interaction.guild) === null || _l === void 0 ? void 0 : _l.memberCount}`);
+                yield interaction.reply(`Server name: ${(_p = interaction.guild) === null || _p === void 0 ? void 0 : _p.name}\nTotal members: ${(_q = interaction.guild) === null || _q === void 0 ? void 0 : _q.memberCount}`);
             }
             else if (!interaction.options.getSubcommand()) {
                 yield interaction.reply("usage: /about <command>\n\tyourself, server");

@@ -56,7 +56,8 @@ const date = new Date();
 
 
 
-    const distube = new DisTube(client, { searchSongs: 1, searchCooldown: 30, emitNewSongOnly: true })
+    const distube = new DisTube(client, 
+        { searchSongs: 1, searchCooldown: 30,leaveOnEmpty: true, emptyCooldown: 0,leaveOnFinish: true, leaveOnStop: true })
 
 
 
@@ -89,10 +90,9 @@ const date = new Date();
 
 
 
-
     
-    // @ts-ignore
-    client.on("messageCreate", async msg => {
+    
+    client.on("messageCreate", async (msg: any) => {
         const guildId: any = msg.guild?.id
         const prefix = '$'
         const args = msg.content.slice(prefix.length).trim().split(/ +/g)
@@ -110,23 +110,23 @@ const date = new Date();
         // DisTube event listeners, more in the documentation page
         distube
 
-            .once('playSong', (queue: any, song) =>
+            .on('playSong', (queue: any, song) =>
                 queue.textChannel.send(
                     `กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration
                     }\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`,
                 ))
 
-            .once('addSong', (queue: any, song) =>
+            .on('addSong', (queue: any, song) =>
                 queue.textChannel.send(
                     `เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`,
                 ))
-            .once('addList', (queue: any, playlist) =>
+            .on('addList', (queue: any, playlist) =>
                 queue.textChannel.send(
                     `เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length
                     } songs) ไปยังรายการเปิดเพลง\n${status(queue)}`,
                 ))
             // DisTubeOptions.searchSongs = true
-            .once('searchResult', (message, result) => {
+            .on('searchResult', (message, result) => {
                 let i = 0
                 message.channel.send(
                     `**Choose an option from below**\n${result
@@ -140,19 +140,19 @@ const date = new Date();
                         )}\n*Enter anything else or wait 30 seconds to cancel*`,
                 )
             })
-            .once('searchCancel', (message: any) => message.channel.send(`การค้นหา ถูกหยุด`))
-            .once('searchInvalidAnswer', (message: any) =>
+            .on('searchCancel', (message: any) => message.channel.send(`การค้นหา ถูกหยุด`))
+            .on('searchInvalidAnswer', (message: any) =>
                 message.channel.send(`searchInvalidAnswer`))
-            .once('searchNoResult', (message: any) => message.channel.send(`ไม่เจออ่ะ`))
-            .once('error', (textChannel, e: any) => {
+            .on('searchNoResult', (message: any) => message.channel.send(`ไม่เจออ่ะ`))
+            .on('error', (textChannel, e: any) => {
                 console.error(e)
                 textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
             })
             
-            .once('finish', (queue: any) => queue.textChannel?.send('หมดคิวละไปนอนต่อละ'))
-            .once('finishSong', (queue: any) => queue.textChannel?.send('เพลงจบไปแล้ว 1'))
-            .once('disconnect', (queue: any) => queue.textChannel?.send('ไปละ'))
-            .once('empty', (queue: any) => queue.textChannel?.send('Empty!'))
+            .on('finish', (queue: any) => queue.textChannel?.send('หมดคิวละไปนอนต่อละ'))
+            .on('finishSong', (queue: any) => queue.textChannel?.send('เพลงจบไปแล้ว 1'))
+            .on('disconnect', (queue: any) => queue.textChannel?.send('ไปละ'))
+            .on('empty', (queue: any) => queue.textChannel?.send('Empty!'))
 
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {

@@ -103,7 +103,7 @@ const date = new Date();
             .setStyle('PRIMARY')
         )
         if (!interaction.isCommand()) return;
-        if (!channel) return;
+        if (interaction.channel !== channel) interaction.reply("You not have permission to access this channel (รอหน่อยเดี๋ยวเปิดให้ใช้กันแล้ว)");
 
         if (interaction.commandName === 'yt') {
             interaction.reply({ content: 'Subscribe Please', components: [row] })

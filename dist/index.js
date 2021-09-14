@@ -77,6 +77,7 @@ const date = new Date();
     (_a = client.user) === null || _a === void 0 ? void 0 : _a.setPresence({ activities: [{ name: "Airwavy" }], status: 'idle' });
     client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
         var _e, _f;
+        const channel = client.channels.cache.get("887156603302871110");
         const embed = new discord_js_1.MessageEmbed()
             .setColor('#fff')
             .setTitle(`Happy birthday! ${whoBirthday} 14/9/2021!`)
@@ -90,6 +91,8 @@ const date = new Date();
             .setLabel('Subscribe')
             .setStyle('PRIMARY'));
         if (!interaction.isCommand())
+            return;
+        if (!channel)
             return;
         if (interaction.commandName === 'yt') {
             interaction.reply({ content: 'Subscribe Please', components: [row] });

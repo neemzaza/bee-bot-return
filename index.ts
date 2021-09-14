@@ -82,7 +82,7 @@ const date = new Date();
 
     client.on('interactionCreate', async interaction => {
         
-        
+        const channel = client.channels.cache.get("887156603302871110")
         
         const embed = new MessageEmbed()
             .setColor('#fff')
@@ -103,6 +103,7 @@ const date = new Date();
             .setStyle('PRIMARY')
         )
         if (!interaction.isCommand()) return;
+        if (!channel) return;
 
         if (interaction.commandName === 'yt') {
             interaction.reply({ content: 'Subscribe Please', components: [row] })

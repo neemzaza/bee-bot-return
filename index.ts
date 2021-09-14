@@ -1,12 +1,12 @@
 import { Client, Intents,MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
-import { clientId, birthday, guildId } from "./botconfig.json"
+import { token,clientId, birthday, guildId } from "./botconfig.json"
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 // import * as leaveEvent from "./command/leaveEvent"
 import "./about"
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@discordjs/builders"
 // const wait = require('util').promisify(setTimeout);
-const token:any = process.env.TOKEN
+// const token:any = process.env.TOKEN
 
 // Update bot use => "a!updateEventGuildIdEachGuildByMsg!a"
 

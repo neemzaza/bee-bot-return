@@ -16,8 +16,8 @@ const v9_1 = require("discord-api-types/v9");
 // import * as leaveEvent from "./command/leaveEvent"
 require("./about");
 const builders_1 = require("@discordjs/builders");
-const wait = require('util').promisify(setTimeout);
-const token = process.env.TOKEN;
+// const wait = require('util').promisify(setTimeout);
+// const token:any = process.env.TOKEN
 // Update bot use => "a!updateEventGuildIdEachGuildByMsg!a"
 const commands = [
     // About user and server
@@ -38,7 +38,7 @@ const commands = [
         .setName("birthday")
         .setDescription("Happy birthday!!!"),
 ];
-const rest = new rest_1.REST({ version: '9' }).setToken(token);
+const rest = new rest_1.REST({ version: '9' }).setToken(botconfig_json_1.token);
 const whoBirthday = "Thun";
 const date = new Date();
 (() => __awaiter(void 0, void 0, void 0, function* () {
@@ -121,5 +121,5 @@ const date = new Date();
             }
         }
     }));
-    client.login(token);
+    client.login(botconfig_json_1.token);
 }))();

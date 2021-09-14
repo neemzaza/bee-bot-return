@@ -1,4 +1,4 @@
-import { Client, Intents, Message, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { Client, Intents, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
 import { token, clientId, birthday, guildId } from "./botconfig.json"
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
@@ -57,7 +57,7 @@ const date = new Date();
 
 
     const distube = new DisTube(client, 
-        { searchSongs: 1, searchCooldown: 30,leaveOnEmpty: true, emptyCooldown: 0,leaveOnFinish: true, leaveOnStop: true })
+        { searchSongs: 0, searchCooldown: 30,leaveOnEmpty: true, emptyCooldown: 0,leaveOnFinish: true, leaveOnStop: true })
 
 
 
@@ -81,7 +81,7 @@ const date = new Date();
 
 
     client.on('ready', async (interaction) => {
-
+        distube.setMaxListeners(0)
         let allGuildId: string[] = client.guilds.cache.map(guild => guild.id)
         console.log(allGuildId)
 
@@ -98,61 +98,7 @@ const date = new Date();
         const args = msg.content.slice(prefix.length).trim().split(/ +/g)
         const command = args.shift()
 
-        const status = (queue: Queue) => 
-            `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
-            || 'Off'}\` | วนไหม?: \`${queue.repeatMode
-                ? queue.repeatMode === 2
-                    ? 'All Queue'
-                    : 'This Song'
-                : 'Off'
-            }\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``
-
-        // DisTube event listeners, more in the documentation page
-        distube
-
-            .on('playSong', async (queue: any, song) =>
-                await queue.textChannel.send(
-                    `กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration
-                    }\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`,
-                ))
-
-            .on('addSong', async (queue: any, song) =>
-                await queue.textChannel.send(
-                    `เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`,
-                ))
-            .on('addList', async (queue: any, playlist) =>
-                await queue.textChannel.send(
-                    `เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length
-                    } songs) ไปยังรายการเปิดเพลง\n${status(queue)}`,
-                ))
-            // DisTubeOptions.searchSongs = true
-            .on('searchResult', async (message, result) => {
-                let i = 0
-                await message.channel.send(
-                    `**Choose an option from below**\n${result
-                        .map(
-                            song =>
-                                `**${++i}**. ${song.name} - \`${song.formattedDuration
-                                }\``,
-                        )
-                        .join(
-                            '\n',
-                        )}\n*Enter anything else or wait 30 seconds to cancel*`,
-                )
-            })
-            .on('searchCancel', async (message: any) => await message.channel.send(`การค้นหา ถูกหยุด`))
-            .on('searchInvalidAnswer', async (message: any) =>
-                await message.channel.send(`searchInvalidAnswer`))
-            .on('searchNoResult', async (message: any) => await message.channel.send(`ไม่เจออ่ะ`))
-            .on('error', async (textChannel, e: any) => {
-                console.error(e)
-                await textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
-            })
-            
-            .on('finish', async (queue: any) => await queue.textChannel?.send('หมดคิวละไปนอนต่อละ'))
-            .on('finishSong', async (queue: any) => await queue.textChannel?.send('เพลงจบไปแล้ว 1'))
-            .on('disconnect', async (queue: any) => await queue.textChannel?.send('ไปละ'))
-            .on('empty', async (queue: any) => await queue.textChannel?.send('Empty!'))
+        
 
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
@@ -194,6 +140,14 @@ const date = new Date();
 
         }
 
+        if (command === "loop") {
+            const mode = distube.setRepeatMode(msg)
+            const queue: any = distube.getQueue(msg)
+
+            if (!queue) return msg.channel.send("ในคิวไม่มีเพลงอยู่เลยนะ")
+            msg.channel.send(`เปิดโหมดการ วนเพลงเป็น \`${mode ? mode === 2 ? 'ทุกคิว' : 'วนแค่เพลงนี้' : 'ปิดอยู่'}\``)
+        }
+
         if (command === "skip") {
             const queue: any = distube.getQueue(msg)
 
@@ -209,6 +163,63 @@ const date = new Date();
             msg.channel.send(`ปรับระดับเสียงเพลงให้้เป็น ${args[0]} แล้วครับ`)
         }
     })
+
+    const status = (queue: Queue) => 
+            `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
+            || 'ปิดอยู่'}\` | วนไหม?: \`${queue.repeatMode
+                ? queue.repeatMode === 2
+                    ? 'All Queue'
+                    : 'This Song'
+                : 'ปิดอยู่'
+            }\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``
+
+        // DisTube event listeners, more in the documentation page
+        distube
+
+            .on('playSong', (queue: any, song) =>
+                queue.textChannel.send(
+                    `กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration
+                    }\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`,
+                ))
+
+            .on('addSong', (queue: any, song) =>
+                queue.textChannel.send(
+                    `เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`,
+                ))
+                
+            .on('addList', (queue: any, playlist) =>
+                queue.textChannel.send(
+                    `เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length
+                    } songs) ไปยังรายการเปิดเพลง\n${status(queue)}`,
+                ))
+            // DisTubeOptions.searchSongs = true
+            .on('searchResult', (message, result) => {
+                let i = 0
+                message.channel.send(
+                    `**Choose an option from below**\n${result
+                        .map(
+                            song =>
+                                `**${++i}**. ${song.name} - \`${song.formattedDuration
+                                }\``,
+                        )
+                        .join(
+                            '\n',
+                        )}\n*Enter anything else or wait 30 seconds to cancel*`,
+                )
+            })
+            .on('searchCancel', (message: any) => message.channel.send(`การค้นหา ถูกหยุด`))
+            .on('searchInvalidAnswer', (message: any) =>
+                message.channel.send(`searchInvalidAnswer`))
+            .on('searchNoResult', (message: any) => message.channel.send(`ไม่เจออ่ะ`))
+            .on('error', (textChannel, e: any) => {
+                console.error(e)
+                textChannel.send(`An error encountered: ${e.slice(0, 2000)}`)
+            })
+            
+            .on('finish', (queue: any) => queue.textChannel.send('หมดคิวละไปนอนต่อละ'))
+            .on('finishSong', (queue: any) => queue.textChannel.send('เพลงจบไปแล้ว 1'))
+            .on('disconnect', (queue: any) => queue.textChannel.send('ไปละ'))
+            .on('empty', (queue: any) => queue.textChannel.send('Empty!'))
 
 
 
@@ -235,7 +246,8 @@ const date = new Date();
             .setColor('#fff')
             .setTitle(`Help Center - All commands`)
             .addFields(
-                { name: "Music bot", value: "$play เว้นวรรคตามด้วยชื่อเพลงเพื่อเล่น\n$skip เพื่อข้าม\n$stop เพื่อหยุดเพลง\n $queue เพื่อดูลำดับการเปิดเพลง\n$volume เว้นวรรคตามด้วยระดับเสียงเพืื่อปรับระดับเสียงเพลง" }
+                { name: "Music bot", 
+                value: "$play เว้นวรรคตามด้วยชื่อเพลงเพื่อเล่น\n$skip เพื่อข้าม\n$stop เพื่อหยุดเพลง\n $queue เพื่อดูลำดับการเปิดเพลง\n$volume เว้นวรรคตามด้วยระดับเสียงเพืื่อปรับระดับเสียงเพลง\n$loop เพืื่อวนเพลงมี 3 โหมด วิธีเลือกให้ใช้คำสั่งนี้ซ้ำมันจะบอกโหมดที่เราใช้อยู่" }
             )
 
         const row = new MessageActionRow()

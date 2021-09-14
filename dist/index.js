@@ -49,7 +49,7 @@ const date = new Date();
     const intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES"];
     const client = new discord_js_1.Client({ intents: intents });
     (_a = client.user) === null || _a === void 0 ? void 0 : _a.setPresence({ activities: [{ name: 'together' }], status: 'invisible' });
-    const distube = new distube_1.DisTube(client, { searchSongs: 1, searchCooldown: 30, leaveOnEmpty: true, emptyCooldown: 0, leaveOnFinish: true, leaveOnStop: true });
+    const distube = new distube_1.DisTube(client, { searchSongs: 0, searchCooldown: 30, leaveOnEmpty: true, emptyCooldown: 0, leaveOnFinish: true, leaveOnStop: true });
     client.on("guildMemberRemove", member => {
         var _a;
         const avatar = (_a = member.user) === null || _a === void 0 ? void 0 : _a.avatarURL();
@@ -63,6 +63,7 @@ const date = new Date();
         channel.send({ embeds: [embed] });
     });
     client.on('ready', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
+        distube.setMaxListeners(0);
         let allGuildId = client.guilds.cache.map(guild => guild.id);
         console.log(allGuildId);
     }));
@@ -72,41 +73,6 @@ const date = new Date();
         const prefix = '$';
         const args = msg.content.slice(prefix.length).trim().split(/ +/g);
         const command = args.shift();
-        const status = (queue) => `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
-            || 'Off'}\` | วนไหม?: \`${queue.repeatMode
-            ? queue.repeatMode === 2
-                ? 'All Queue'
-                : 'This Song'
-            : 'Off'}\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``;
-        // DisTube event listeners, more in the documentation page
-        distube
-            .on('playSong', (queue, song) => __awaiter(void 0, void 0, void 0, function* () {
-            return yield queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`);
-        }))
-            .on('addSong', (queue, song) => __awaiter(void 0, void 0, void 0, function* () {
-            return yield queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`);
-        }))
-            .on('addList', (queue, playlist) => __awaiter(void 0, void 0, void 0, function* () {
-            return yield queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`);
-        }))
-            // DisTubeOptions.searchSongs = true
-            .on('searchResult', (message, result) => __awaiter(void 0, void 0, void 0, function* () {
-            let i = 0;
-            yield message.channel.send(`**Choose an option from below**\n${result
-                .map(song => `**${++i}**. ${song.name} - \`${song.formattedDuration}\``)
-                .join('\n')}\n*Enter anything else or wait 30 seconds to cancel*`);
-        }))
-            .on('searchCancel', (message) => __awaiter(void 0, void 0, void 0, function* () { return yield message.channel.send(`การค้นหา ถูกหยุด`); }))
-            .on('searchInvalidAnswer', (message) => __awaiter(void 0, void 0, void 0, function* () { return yield message.channel.send(`searchInvalidAnswer`); }))
-            .on('searchNoResult', (message) => __awaiter(void 0, void 0, void 0, function* () { return yield message.channel.send(`ไม่เจออ่ะ`); }))
-            .on('error', (textChannel, e) => __awaiter(void 0, void 0, void 0, function* () {
-            console.error(e);
-            yield textChannel.send(`An error encountered: ${e.slice(0, 2000)}`);
-        }))
-            .on('finish', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _k; return yield ((_k = queue.textChannel) === null || _k === void 0 ? void 0 : _k.send('หมดคิวละไปนอนต่อละ')); }))
-            .on('finishSong', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _l; return yield ((_l = queue.textChannel) === null || _l === void 0 ? void 0 : _l.send('เพลงจบไปแล้ว 1')); }))
-            .on('disconnect', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _m; return yield ((_m = queue.textChannel) === null || _m === void 0 ? void 0 : _m.send('ไปละ')); }))
-            .on('empty', (queue) => __awaiter(void 0, void 0, void 0, function* () { var _o; return yield ((_o = queue.textChannel) === null || _o === void 0 ? void 0 : _o.send('Empty!')); }));
         if (msg.content === "a!updateEventGuildIdEachGuildByMsg!a") {
             try {
                 yield rest.put(v9_1.Routes.applicationGuildCommands(botconfig_json_1.clientId, guildId), //'844398657071480872'
@@ -144,6 +110,13 @@ const date = new Date();
             }
             msg.channel.send('คิวตอนนี้:\n' + queue.songs.map((song, id) => `**${id + 1}**. [${song.name}](${song.url}) ความยาว \`${song.formattedDuration}\``).join("\n"));
         }
+        if (command === "loop") {
+            const mode = distube.setRepeatMode(msg);
+            const queue = distube.getQueue(msg);
+            if (!queue)
+                return msg.channel.send("ในคิวไม่มีเพลงอยู่เลยนะ");
+            msg.channel.send(`เปิดโหมดการ วนเพลงเป็น \`${mode ? mode === 2 ? 'ทุกคิว' : 'วนแค่เพลงนี้' : 'ปิดอยู่'}\``);
+        }
         if (command === "skip") {
             const queue = distube.getQueue(msg);
             if (!queue) {
@@ -158,8 +131,37 @@ const date = new Date();
             msg.channel.send(`ปรับระดับเสียงเพลงให้้เป็น ${args[0]} แล้วครับ`);
         }
     }));
+    const status = (queue) => `ความดัง: \`${queue.volume}%\` | ออโต้จูนเสียง: \`${queue.filters.join(', ')
+        || 'ปิดอยู่'}\` | วนไหม?: \`${queue.repeatMode
+        ? queue.repeatMode === 2
+            ? 'All Queue'
+            : 'This Song'
+        : 'ปิดอยู่'}\` | เล่นเองไหม?: \`${queue.autoplay ? 'On' : 'Off'}\``;
+    // DisTube event listeners, more in the documentation page
+    distube
+        .on('playSong', (queue, song) => queue.textChannel.send(`กำลังเปิดเพลง \`${song.name}\` ความยาวเพลง \`${song.formattedDuration}\`\nโดนสั่งโดย by: ${song.user}\n${status(queue)}`))
+        .on('addSong', (queue, song) => queue.textChannel.send(`เพิ่มเพลง ${song.name} - \`${song.formattedDuration}\` ไปยังรายการเปิดเพลง โดย ${song.user}`))
+        .on('addList', (queue, playlist) => queue.textChannel.send(`เพิ่มรายการเพลง \`${playlist.name}\` จำนวน (${playlist.songs.length} songs) ไปยังรายการเปิดเพลง\n${status(queue)}`))
+        // DisTubeOptions.searchSongs = true
+        .on('searchResult', (message, result) => {
+        let i = 0;
+        message.channel.send(`**Choose an option from below**\n${result
+            .map(song => `**${++i}**. ${song.name} - \`${song.formattedDuration}\``)
+            .join('\n')}\n*Enter anything else or wait 30 seconds to cancel*`);
+    })
+        .on('searchCancel', (message) => message.channel.send(`การค้นหา ถูกหยุด`))
+        .on('searchInvalidAnswer', (message) => message.channel.send(`searchInvalidAnswer`))
+        .on('searchNoResult', (message) => message.channel.send(`ไม่เจออ่ะ`))
+        .on('error', (textChannel, e) => {
+        console.error(e);
+        textChannel.send(`An error encountered: ${e.slice(0, 2000)}`);
+    })
+        .on('finish', (queue) => queue.textChannel.send('หมดคิวละไปนอนต่อละ'))
+        .on('finishSong', (queue) => queue.textChannel.send('เพลงจบไปแล้ว 1'))
+        .on('disconnect', (queue) => queue.textChannel.send('ไปละ'))
+        .on('empty', (queue) => queue.textChannel.send('Empty!'));
     client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-        var _p, _q;
+        var _k, _l;
         const channel = client.channels.cache.get("887156603302871110");
         const embed = new discord_js_1.MessageEmbed()
             .setColor('#fff')
@@ -171,7 +173,8 @@ const date = new Date();
         const embedhelp = new discord_js_1.MessageEmbed()
             .setColor('#fff')
             .setTitle(`Help Center - All commands`)
-            .addFields({ name: "Music bot", value: "$play เว้นวรรคตามด้วยชื่อเพลงเพื่อเล่น\n$skip เพื่อข้าม\n$stop เพื่อหยุดเพลง\n $queue เพื่อดูลำดับการเปิดเพลง\n$volume เว้นวรรคตามด้วยระดับเสียงเพืื่อปรับระดับเสียงเพลง" });
+            .addFields({ name: "Music bot",
+            value: "$play เว้นวรรคตามด้วยชื่อเพลงเพื่อเล่น\n$skip เพื่อข้าม\n$stop เพื่อหยุดเพลง\n $queue เพื่อดูลำดับการเปิดเพลง\n$volume เว้นวรรคตามด้วยระดับเสียงเพืื่อปรับระดับเสียงเพลง\n$loop เพืื่อวนเพลงมี 3 โหมด วิธีเลือกให้ใช้คำสั่งนี้ซ้ำมันจะบอกโหมดที่เราใช้อยู่" });
         const row = new discord_js_1.MessageActionRow()
             .addComponents(new discord_js_1.MessageButton()
             .setCustomId('primary')
@@ -209,7 +212,7 @@ const date = new Date();
                 }
             }
             else if (interaction.options.getSubcommand() === "server") {
-                yield interaction.reply(`Server name: ${(_p = interaction.guild) === null || _p === void 0 ? void 0 : _p.name}\nTotal members: ${(_q = interaction.guild) === null || _q === void 0 ? void 0 : _q.memberCount}`);
+                yield interaction.reply(`Server name: ${(_k = interaction.guild) === null || _k === void 0 ? void 0 : _k.name}\nTotal members: ${(_l = interaction.guild) === null || _l === void 0 ? void 0 : _l.memberCount}`);
             }
             else if (!interaction.options.getSubcommand()) {
                 yield interaction.reply("usage: /about <command>\n\tyourself, server");

@@ -46,7 +46,7 @@ const whoBirthday = "Thun";
 const date = new Date();
 (() => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES"];
+    const intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "GUILD_INTEGRATIONS"];
     const client = new discord_js_1.Client({ intents: intents });
     (_a = client.user) === null || _a === void 0 ? void 0 : _a.setPresence({ activities: [{ name: 'together' }], status: 'invisible' });
     const distube = new distube_1.DisTube(client, { searchSongs: 0, searchCooldown: 30, leaveOnEmpty: true, emptyCooldown: 0, leaveOnFinish: true, leaveOnStop: true });
@@ -67,6 +67,45 @@ const date = new Date();
         let allGuildId = client.guilds.cache.map(guild => guild.id);
         console.log(allGuildId);
     }));
+    // Detect @everyone and @here
+    client.on('messageCreate', (msg) => {
+        var _a, _b;
+        let role = msg.guild.roles.cache.find((r) => r.id === "905997597234307162");
+        let person = msg.member;
+        let message = msg.content.toLowerCase();
+        let word = ["@everyone", "@here"];
+        const staffRoom = client.channels.cache.get("873030186952691794");
+        const embed = new discord_js_1.MessageEmbed()
+            .setColor("RED")
+            .setTitle(`รายงานครับท่าน - พบการใช้ tag "Everyone หรือ Here"`)
+            .setDescription(`สมาชิกชื่อ : ${person.user.username}#${person.user.discriminator}\nเขานั้นได้ทำการ tag "Everyone" หรือ "Here"`)
+            .setAuthor(`REPORT - BEE BOT RETURN`)
+            .setTimestamp(new Date());
+        if (msg.member.roles.cache.some((role) => role.id === "873035682992513085"))
+            return;
+        for (let i = 0; i < word.length; i++) {
+            if (message.includes(word[i])) {
+                if (((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.id) === "873030042412797972" || ((_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id) === "841924507261468702") {
+                    msg.delete();
+                    msg.author.send("พบการแท็ก Everyone หรือ Here นะครับ ตรวจสอบให้แน่ใจว่าได้ไปกดลิงค์อะไรแปลกๆ ป่าว ถ้าคุณไม่ได้จงใจ แสดงว่าคุณนั้น **โดนแฮ็กแล้วครับ**");
+                    staffRoom.send({ embeds: [embed] });
+                    // console.log(person)
+                }
+            }
+        }
+    });
+    client.on('messageCreate', (msg) => {
+        var _a, _b;
+        let message = msg.content.toLowerCase();
+        let word = ["unable to connect to world"];
+        for (let i = 0; i < word.length; i++) {
+            if (message.includes(word[i])) {
+                if (((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.id) === "873030042412797972" || ((_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id) === "841924507261468702") {
+                    msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds");
+                }
+            }
+        }
+    });
     client.on("messageCreate", (msg) => __awaiter(void 0, void 0, void 0, function* () {
         var _b, _c, _d, _e, _f, _g, _h, _j;
         const guildId = (_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id;
@@ -193,14 +232,13 @@ const date = new Date();
         if (interaction.commandName === 'yt') {
             interaction.reply({ content: 'Subscribe Please', components: [row] });
         }
-        if (interaction.commandName === 'birthday') {
-            if (date.getDate() === 14) {
-                interaction.reply({ embeds: [embed] });
-            }
-            else {
-                interaction.reply("AH!!");
-            }
-        }
+        // if (interaction.commandName === 'birthday') {
+        //     if (date.getDate() === 14) {
+        //         interaction.reply({ embeds: [embed] })
+        //     } else {
+        //         interaction.reply("AH!!")
+        //     }
+        // }
         if (interaction.commandName === 'about') {
             if (interaction.options.getSubcommand() === "yourself") {
                 const user = interaction.options.getUser('target');

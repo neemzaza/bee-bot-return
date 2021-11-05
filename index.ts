@@ -49,7 +49,7 @@ const whoBirthday: string = "Thun";
 const date = new Date();
 
 (async () => {
-    const intents: any[] = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES"]
+    const intents: any[] = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "GUILD_INTEGRATIONS"]
     const client = new Client({ intents: intents });
     client.user?.setPresence({ activities: [{ name: 'together' }], status: 'invisible' })
 
@@ -88,9 +88,49 @@ const date = new Date();
     })
 
 
+    // Detect @everyone and @here
+    client.on('messageCreate', (msg: any) => {
+        let role = msg.guild.roles.cache.find((r:any) => r.id === "905997597234307162")
+        let person = msg.member;
+        let message = msg.content.toLowerCase()
+        let word = ["@everyone", "@here"]
 
+        const staffRoom:any = client.channels.cache.get("873030186952691794")
 
+        const embed = new MessageEmbed()
+            .setColor("RED")
+            .setTitle(`รายงานครับท่าน - พบการใช้ tag "Everyone หรือ Here"`)
+            .setDescription(`สมาชิกชื่อ : ${person.user.username}#${person.user.discriminator}\nเขานั้นได้ทำการ tag "Everyone" หรือ "Here" ตอนนี้ผมได้ทำการลบข้อความนั้นและตักเตือนเขาไปแล้ว`)
+            .setAuthor(`REPORT - BEE BOT RETURN`)
+            .setTimestamp(new Date())
+
+        if (msg.member.roles.cache.some((role:any) => role.id === "873035682992513085")) return;
+        
+
+        for (let i = 0; i < word.length; i++) {
+            if (message.includes(word[i])) {
+                if (msg.guild?.id === "873030042412797972" || msg.guild?.id === "841924507261468702") {
+                    msg.delete()
+                    msg.author.send("พบการแท็ก Everyone หรือ Here นะครับ ตรวจสอบให้แน่ใจว่าได้ไปกดลิงค์อะไรแปลกๆ ป่าว ถ้าคุณไม่ได้จงใจ แสดงว่าคุณนั้น **โดนแฮ็กแล้วครับ**")
+                    staffRoom.send({ embeds: [embed]})
+                    // console.log(person)
+                }
+            }
+        }
+    })
     
+    client.on('messageCreate', (msg: any) => {
+        let message = msg.content.toLowerCase();
+        let word = ["unable to connect to world"]
+
+        for (let i = 0; i < word.length; i++) {
+            if (message.includes(word[i])) {
+                if (msg.guild?.id === "873030042412797972" || msg.guild?.id === "841924507261468702") {
+                    msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds")
+                }
+            }
+        }
+    })
     
     client.on("messageCreate", async (msg: any) => {
         const guildId: any = msg.guild?.id
@@ -274,13 +314,13 @@ const date = new Date();
             interaction.reply({ content: 'Subscribe Please', components: [row] })
         }
 
-        if (interaction.commandName === 'birthday') {
-            if (date.getDate() === 14) {
-                interaction.reply({ embeds: [embed] })
-            } else {
-                interaction.reply("AH!!")
-            }
-        }
+        // if (interaction.commandName === 'birthday') {
+        //     if (date.getDate() === 14) {
+        //         interaction.reply({ embeds: [embed] })
+        //     } else {
+        //         interaction.reply("AH!!")
+        //     }
+        // }
 
         if (interaction.commandName === 'about') {
 

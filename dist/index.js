@@ -78,7 +78,7 @@ const date = new Date();
         const embed = new discord_js_1.MessageEmbed()
             .setColor("RED")
             .setTitle(`รายงานครับท่าน - พบการใช้ tag "Everyone หรือ Here"`)
-            .setDescription(`สมาชิกชื่อ : ${person.user.username}#${person.user.discriminator}\nเขานั้นได้ทำการ tag "Everyone" หรือ "Here"`)
+            .setDescription(`สมาชิกชื่อ : ${person.user.username}#${person.user.discriminator}\nเขานั้นได้ทำการ tag "Everyone" หรือ "Here" ตอนนี้ผมได้ทำการลบข้อความนั้นและตักเตือนเขาไปแล้ว`)
             .setAuthor(`REPORT - BEE BOT RETURN`)
             .setTimestamp(new Date());
         if (msg.member.roles.cache.some((role) => role.id === "873035682992513085"))

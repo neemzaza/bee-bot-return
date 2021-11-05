@@ -121,15 +121,17 @@ const date = new Date();
     
     client.on('messageCreate', (msg: any) => {
         let message = msg.content.toLowerCase();
-        let word = ["unable to connect to world"]
+        let word = ["unable to connect to world", "online-mode"]
 
-        for (let i = 0; i < word.length; i++) {
-            if (message.includes(word[i])) {
-                if (msg.guild?.id === "873030042412797972" || msg.guild?.id === "841924507261468702") {
-                    msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds")
-                }
+        // for (let i = 0; i < word.length; i++) {
+        if (msg.guild?.id === "873030042412797972" || msg.guild?.id === "841924507261468702") {
+            if (message.includes(word[0])) {
+                msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds")
+            } else if (message.includes(word[1])) {
+                msg.reply("ใน server.properties ตรง online-mode ถ้าอยากให้มายคราฟไอดีแท้เข้าอย่างเดียวให้ปรับเป็น true ครับ ส่วนถ้าอยากให้ทั้งแท้และไม่แท้เข้าให้ปรับเป็น false ครับ")
             }
         }
+        // }
     })
     
     client.on("messageCreate", async (msg: any) => {

@@ -1,5 +1,5 @@
 import { Client, Intents, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
-import { token, clientId, birthday, guildId } from "./botconfig.json"
+import { clientId, birthday, guildId } from "./botconfig.json"
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { DisTube, Queue } from "distube";
@@ -43,7 +43,7 @@ const commands = [
 
 
 
-const rest: REST = new REST({ version: '9' }).setToken(token);
+const rest: REST = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
 const whoBirthday: string = "Thun";
 const date = new Date();
@@ -352,5 +352,5 @@ const date = new Date();
 
 
 
-    client.login(token)
+    client.login(process.env.TOKEN)
 })();

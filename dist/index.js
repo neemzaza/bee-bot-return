@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require('dotenv').config();
 const discord_js_1 = require("discord.js");
 const botconfig_json_1 = require("./botconfig.json");
 const rest_1 = require("@discordjs/rest");
@@ -41,7 +42,8 @@ const commands = [
         .setName("help")
         .setDescription("use /help to view all commands available")
 ];
-const rest = new rest_1.REST({ version: '9' }).setToken(botconfig_json_1.token);
+// @ts-ignore
+const rest = new rest_1.REST({ version: '9' }).setToken(process.env.TOKEN);
 const whoBirthday = "Thun";
 const date = new Date();
 (() => __awaiter(void 0, void 0, void 0, function* () {
@@ -97,14 +99,23 @@ const date = new Date();
     client.on('messageCreate', (msg) => {
         var _a, _b;
         let message = msg.content.toLowerCase();
-        let word = ["unable to connect to world"];
-        for (let i = 0; i < word.length; i++) {
-            if (message.includes(word[i])) {
-                if (((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.id) === "873030042412797972" || ((_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id) === "841924507261468702") {
-                    msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds");
-                }
+        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง"];
+        // for (let i = 0; i < word.length; i++) {
+        if (((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.id) === "873030042412797972" || ((_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id) === "841924507261468702") {
+            if (message.includes(word[0])) {
+                msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds");
+            }
+            else if (message.includes(word[1])) {
+                msg.reply("ใน server.properties ตรง online-mode ถ้าอยากให้มายคราฟไอดีแท้เข้าอย่างเดียวให้ปรับเป็น true ครับ ส่วนถ้าอยากให้ทั้งแท้และไม่แท้เข้าให้ปรับเป็น false ครับ");
+            }
+            else if (message.includes(word[2]) || message.includes(word[3])) {
+                msg.reply("paper จะดัดแปลงจาก spigot อีกทีครับ ซึ่งมันจะแก้ไขบัคบางอย่างที่มีใน minecraft ด้วย");
+            }
+            else if (message.includes(word[4])) {
+                msg.reply("ลองเพิ่มแรมที่ตัว run.bat ดูครับ โดยไปแก้ไขตรง -Xms1024M ถ้าแรมเครื่องคุณ 8GB แนะนำให้เพิ่มต่อหลัง -Xm...24M เป็น -Xmx5G ครับ หรือถ้าแรมมากกว่า 8GB ก็ให้ปรับตามความเหมาะสมครับ");
             }
         }
+        // }
     });
     client.on("messageCreate", (msg) => __awaiter(void 0, void 0, void 0, function* () {
         var _b, _c, _d, _e, _f, _g, _h, _j;
@@ -257,5 +268,5 @@ const date = new Date();
             }
         }
     }));
-    client.login(botconfig_json_1.token);
+    client.login(process.env.TOKEN);
 }))();

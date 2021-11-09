@@ -1,3 +1,4 @@
+require('dotenv').config();
 import { Client, Intents, Message, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from "discord.js";
 import { clientId, birthday, guildId } from "./botconfig.json"
 import { REST } from '@discordjs/rest';
@@ -42,7 +43,7 @@ const commands = [
 ]
 
 
-
+// @ts-ignore
 const rest: REST = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
 const whoBirthday: string = "Thun";

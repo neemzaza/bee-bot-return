@@ -122,7 +122,7 @@ const date = new Date();
     
     client.on('messageCreate', (msg: any) => {
         let message = msg.content.toLowerCase();
-        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง"]
+        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง", "ขึ้นข้อความแดงบนหน้า console"]
 
         // for (let i = 0; i < word.length; i++) {
         if (msg.guild?.id === "873030042412797972" || msg.guild?.id === "841924507261468702") {
@@ -134,6 +134,8 @@ const date = new Date();
                 msg.reply("paper จะดัดแปลงจาก spigot อีกทีครับ ซึ่งมันจะแก้ไขบัคบางอย่างที่มีใน minecraft ด้วย")
             } else if (message.includes(word[4])) {
                 msg.reply("ลองเพิ่มแรมที่ตัว run.bat ดูครับ โดยไปแก้ไขตรง -Xms1024M ถ้าแรมเครื่องคุณ 8GB แนะนำให้เพิ่มต่อหลัง -Xm...24M เป็น -Xmx5G ครับ หรือถ้าแรมมากกว่า 8GB ก็ให้ปรับตามความเหมาะสมครับ")
+            } else if (message.includes(word[5])) {
+                msg.reply("ไม่ต้องตกใจครับ มันเกิดจากการที่เซิฟไม่ตอบสนองหรือเซิฟค้างชั่วขณะเท่านั้นครับ ลองไปเพิ่มแรมอาจจะหายดีครับ")
             }
         }
         // }

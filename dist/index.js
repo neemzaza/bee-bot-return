@@ -47,10 +47,9 @@ const rest = new rest_1.REST({ version: '9' }).setToken(process.env.TOKEN);
 const whoBirthday = "Thun";
 const date = new Date();
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const intents = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "GUILD_INTEGRATIONS"];
     const client = new discord_js_1.Client({ intents: intents });
-    (_a = client.user) === null || _a === void 0 ? void 0 : _a.setPresence({ activities: [{ name: 'together' }], status: 'invisible' });
+    // client.user?.setPresence({ activities: [{ name: 'together' }], status: 'invisible' })
     const distube = new distube_1.DisTube(client, { searchSongs: 0, searchCooldown: 30, leaveOnEmpty: true, emptyCooldown: 0, leaveOnFinish: true, leaveOnStop: true });
     client.on("guildMemberRemove", member => {
         var _a;
@@ -65,9 +64,11 @@ const date = new Date();
         channel.send({ embeds: [embed] });
     });
     client.on('ready', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
         distube.setMaxListeners(0);
         let allGuildId = client.guilds.cache.map(guild => guild.id);
         console.log(allGuildId);
+        (_a = client.user) === null || _a === void 0 ? void 0 : _a.setActivity("คำถามของคุณ", { type: "LISTENING", url: "https://it-airwavy.ml/" });
     }));
     // Detect @everyone and @here
     client.on('messageCreate', (msg) => {
@@ -96,23 +97,35 @@ const date = new Date();
             }
         }
     });
+    const maintaince = false;
     client.on('messageCreate', (msg) => {
         var _a, _b;
+        if (msg.author.bot)
+            return;
         let message = msg.content.toLowerCase();
-        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง"];
+        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง", "ขึ้นข้อความแดงบนหน้า console", "geyser-java16", "เปลี่ยนไปใช้ zerotier"];
         // for (let i = 0; i < word.length; i++) {
-        if (((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.id) === "873030042412797972" || ((_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id) === "841924507261468702") {
+        if (!maintaince ? ((_a = msg.guild) === null || _a === void 0 ? void 0 : _a.id) === "873030042412797972" : null || ((_b = msg.guild) === null || _b === void 0 ? void 0 : _b.id) === "841924507261468702") {
             if (message.includes(word[0])) {
-                msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds");
+                msg.reply("ลองดูคลิปนี้! https://youtu.be/KBnUjWcz9Ds");
             }
             else if (message.includes(word[1])) {
-                msg.reply("ใน server.properties ตรง online-mode ถ้าอยากให้มายคราฟไอดีแท้เข้าอย่างเดียวให้ปรับเป็น true ครับ ส่วนถ้าอยากให้ทั้งแท้และไม่แท้เข้าให้ปรับเป็น false ครับ");
+                msg.reply("ใน server.properties ตรง online-mode ถ้าอยากให้มายคราฟไอดีแท้เข้าอย่างเดียวให้ปรับเป็น true นะ ส่วนถ้าอยากให้ทั้งแท้และไม่แท้เข้าให้ปรับเป็น false");
             }
             else if (message.includes(word[2]) || message.includes(word[3])) {
-                msg.reply("paper จะดัดแปลงจาก spigot อีกทีครับ ซึ่งมันจะแก้ไขบัคบางอย่างที่มีใน minecraft ด้วย");
+                msg.reply("paper จะดัดแปลงจาก spigot อีกที ซึ่งมันจะแก้ไขบัคบางอย่างที่มีใน minecraft ด้วย!");
             }
             else if (message.includes(word[4])) {
-                msg.reply("ลองเพิ่มแรมที่ตัว run.bat ดูครับ โดยไปแก้ไขตรง -Xms1024M ถ้าแรมเครื่องคุณ 8GB แนะนำให้เพิ่มต่อหลัง -Xm...24M เป็น -Xmx5G ครับ หรือถ้าแรมมากกว่า 8GB ก็ให้ปรับตามความเหมาะสมครับ");
+                msg.reply("ลองเพิ่มแรมที่ตัว run.bat ดูนะ โดยไปแก้ไขตรง -Xms1024M ถ้าแรมเครื่องคุณ 8GB แนะนำให้เพิ่มต่อหลัง -Xm...24M เป็น -Xmx5G ครับ หรือถ้าแรมมากกว่า 8GB ก็ให้ปรับตามความเหมาะสม!");
+            }
+            else if (message.includes(word[5])) {
+                msg.reply("ไม่ต้องตกใจ! มันเกิดจากการที่เซิฟไม่ตอบสนองหรือเซิฟค้างชั่วขณะเท่านั้น ลองไปเพิ่มแรมอาจจะหายดี");
+            }
+            else if (message.includes(word[6])) {
+                msg.reply("ลองดูคลิปนี้! https://youtu.be/qunb4jfbNIE");
+            }
+            else if (message.includes(word[7])) {
+                msg.reply("ลองดูคลิปนี้! https://youtu.be/gxryiAMUDmI");
             }
         }
         // }

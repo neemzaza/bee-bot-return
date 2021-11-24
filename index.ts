@@ -52,9 +52,7 @@ const date = new Date();
 (async () => {
     const intents: any[] = ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "GUILD_INTEGRATIONS"]
     const client = new Client({ intents: intents });
-    client.user?.setPresence({ activities: [{ name: 'together' }], status: 'invisible' })
-
-
+    // client.user?.setPresence({ activities: [{ name: 'together' }], status: 'invisible' })
 
 
     const distube = new DisTube(client, 
@@ -86,6 +84,7 @@ const date = new Date();
         let allGuildId: string[] = client.guilds.cache.map(guild => guild.id)
         console.log(allGuildId)
 
+        client.user?.setActivity("คำถามของคุณ", {type: "LISTENING", url: "https://it-airwavy.ml/"});
     })
 
 
@@ -119,23 +118,31 @@ const date = new Date();
             }
         }
     })
+
+    const maintaince = false;
     
     client.on('messageCreate', (msg: any) => {
+        if (msg.author.bot) return;
+
         let message = msg.content.toLowerCase();
-        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง", "ขึ้นข้อความแดงบนหน้า console"]
+        let word = ["unable to connect to world", "online-mode", "paper กับ spigot", "spigot กับ paper", "เซิฟหน่วง", "ขึ้นข้อความแดงบนหน้า console", "geyser-java16", "เปลี่ยนไปใช้ zerotier"]
 
         // for (let i = 0; i < word.length; i++) {
-        if (msg.guild?.id === "873030042412797972" || msg.guild?.id === "841924507261468702") {
+        if (!maintaince ? msg.guild?.id === "873030042412797972" : null || msg.guild?.id === "841924507261468702") {
             if (message.includes(word[0])) {
-                msg.reply("ลองดูคลิปนี้ https://youtu.be/KBnUjWcz9Ds")
+                msg.reply("ลองดูคลิปนี้! https://youtu.be/KBnUjWcz9Ds")
             } else if (message.includes(word[1])) {
-                msg.reply("ใน server.properties ตรง online-mode ถ้าอยากให้มายคราฟไอดีแท้เข้าอย่างเดียวให้ปรับเป็น true ครับ ส่วนถ้าอยากให้ทั้งแท้และไม่แท้เข้าให้ปรับเป็น false ครับ")
+                msg.reply("ใน server.properties ตรง online-mode ถ้าอยากให้มายคราฟไอดีแท้เข้าอย่างเดียวให้ปรับเป็น true นะ ส่วนถ้าอยากให้ทั้งแท้และไม่แท้เข้าให้ปรับเป็น false")
             } else if (message.includes(word[2]) || message.includes(word[3])) {
-                msg.reply("paper จะดัดแปลงจาก spigot อีกทีครับ ซึ่งมันจะแก้ไขบัคบางอย่างที่มีใน minecraft ด้วย")
+                msg.reply("paper จะดัดแปลงจาก spigot อีกที ซึ่งมันจะแก้ไขบัคบางอย่างที่มีใน minecraft ด้วย!")
             } else if (message.includes(word[4])) {
-                msg.reply("ลองเพิ่มแรมที่ตัว run.bat ดูครับ โดยไปแก้ไขตรง -Xms1024M ถ้าแรมเครื่องคุณ 8GB แนะนำให้เพิ่มต่อหลัง -Xm...24M เป็น -Xmx5G ครับ หรือถ้าแรมมากกว่า 8GB ก็ให้ปรับตามความเหมาะสมครับ")
+                msg.reply("ลองเพิ่มแรมที่ตัว run.bat ดูนะ โดยไปแก้ไขตรง -Xms1024M ถ้าแรมเครื่องคุณ 8GB แนะนำให้เพิ่มต่อหลัง -Xm...24M เป็น -Xmx5G ครับ หรือถ้าแรมมากกว่า 8GB ก็ให้ปรับตามความเหมาะสม!")
             } else if (message.includes(word[5])) {
-                msg.reply("ไม่ต้องตกใจครับ มันเกิดจากการที่เซิฟไม่ตอบสนองหรือเซิฟค้างชั่วขณะเท่านั้นครับ ลองไปเพิ่มแรมอาจจะหายดีครับ")
+                msg.reply("ไม่ต้องตกใจ! มันเกิดจากการที่เซิฟไม่ตอบสนองหรือเซิฟค้างชั่วขณะเท่านั้น ลองไปเพิ่มแรมอาจจะหายดี")
+            } else if (message.includes(word[6])) {
+                msg.reply("ลองดูคลิปนี้! https://youtu.be/qunb4jfbNIE")
+            } else if (message.includes(word[7])) {
+                msg.reply("ลองดูคลิปนี้! https://youtu.be/gxryiAMUDmI")
             }
         }
         // }
